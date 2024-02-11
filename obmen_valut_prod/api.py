@@ -28,20 +28,20 @@ def get_data_from_config():
     redis_port = int(config.get('redis', 'port'))
     redis_pass = config.get('redis', 'pass')
     return db_host, db_port, db_user, db_password, db, redis_host, redis_port, redis_pass
-def connect_to_db(host, port, user, password, db):
-    connection = pymysql.connect(host=host,port=port,user=user, password=password, db=db)
-    cursor = connection.cursor()
-    return connection, cursor
+#def connect_to_db(host, port, user, password, db):
+    #connection = pymysql.connect(host=host,port=port,user=user, password=password, db=db)
+    #cursor = connection.cursor()
+    #return connection, cursor
 
 def connect_to_redis(redis_host, redis_port, redis_pass):
     redis_conn = redis.StrictRedis(host=redis_host, port=redis_port, password=redis_pass)
     return redis_conn
 
 
-#def connect_to_db():
-    #connection = pymysql.connect(host='127.0.0.1',port=3306,user='obmen', password='12345', db='BANK')
-    #cursor = connection.cursor()
-    #return connection, cursor
+def connect_to_db():
+    connection = pymysql.connect(host='127.0.0.1',port=3306,user='obmen', password='12345', db='BANK')
+    cursor = connection.cursor()
+    return connection, cursor
 
 
 def get_valute_rate_from_db(connection, cursor,valute):
@@ -63,5 +63,9 @@ def get_valute_rate(valute_name):
     return {valute_name:rate}
 
 @app.get("/convert")
-def convert_valute(fv, sv, count):
-    return fv, sv, count
+def convert_valute(fv, sv, vcount):
+    connection, cursor = connect_to_db()
+    fv_rate = get_valute_rate_from_db(connection, cursor, fv)
+    sv_rate = get_valute_rate_from_db(connection, cursor, sv)
+    OUTVALUTE_COUNT = round((fv_rate * float(vcount)) / sv_rate, 2)
+    return OUTVALUTE_COUNT
