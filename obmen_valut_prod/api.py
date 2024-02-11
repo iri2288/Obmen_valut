@@ -2,6 +2,7 @@ import fastapi
 import pymysql
 import datetime
 import configparser
+import pymysql
 
 
 app = fastapi.FastAPI()
